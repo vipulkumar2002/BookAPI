@@ -36,6 +36,7 @@ Parameters         None
 Method             GET
 */
 bookLekh.get("/", (req,res) => {
+    const getAllBooks = bookModel.find();
     //hello change
     return res.json({books: database.books});
 });
@@ -47,11 +48,13 @@ Access             Public
 Parameters         isbn
 Method             GET
 */
-bookLekh.get("/is/:isbn", (req,res)=>{
-    const getSpecificBook = database.books.filter( 
-        (book) => book.ISBN === req.params.isbn
-    );
-    if(getSpecificBook.length == 0){
+bookLekh.get("/is/:isbn", async(req,res)=>{
+    const getSpecificBook = await bookModel.findOne({ISBN: req.params.isbn});
+    
+    // const getSpecificBook = database.books.filter( 
+    //     (book) => book.ISBN === req.params.isbn
+    // );
+    if(!getSpecificBook){
         return res.json({
             error:`No book found for the ISBN of ${req.params.isbn}`
         });
@@ -84,11 +87,12 @@ Access             Public
 Parameters         category
 Method             GET
 */
-bookLekh.get("/c/:category", (req,res) => {
-    const getSpecificBook = database.books.filter(
-        (book) => book.category.includes(req.params.category) );
-    if(getSpecificBook.length == 0){
-        return res.json({error:`No book found for the ISBN of ${req.params.category}` });
+bookLekh.get("/c/:category", async (req,res) => {
+    const getSpecificBook = await bookModel.findOne({category: req.params.category,});
+    // const getSpecificBook = database.books.filter(
+    //     (book) => book.category.includes(req.params.category) );
+    if(!getSpecificBook){
+        return res.json({error:`No book found in this category of ${req.params.category}` });
     }
     return res.json({books: getSpecificBook});
 });
@@ -102,10 +106,13 @@ Access             Public
 Parameters         none
 Method             POST
 */
-bookLekh.post("/book/new", (req,res)=>{
+bookLekh.post("/book/new", async(req,res)=>{
     const {newBook} = req.body;
-    database.books.push(newBook);
-    return res.json({books:database.books, massage:"Book was added!!"});
+
+    bookModel.create(newBook);
+    // database.books.push(newBook);
+
+    return res.json({massage:"Book was added!!"});
 });
 
 
@@ -164,8 +171,9 @@ Access             Public
 Parameters         none
 Method             GET
 */
-bookLekh.get("/author", (req,res) => {
-        return res.json({authors:database.authors})
+bookLekh.get("/author", async(req,res) => {
+        const getAllAuthor = await authorModel.find();
+        return res.json({authors:getAllAuthor});
     }
 );
 
@@ -225,8 +233,9 @@ Method             GET
 */
 bookLekh.post("/author/new", (req,res)=>{
     const {newAuthor} = req.body;
-    database.authors.push(newAuthor);
-    return res.json({authors: database.authors, massage:"Author was Added !!"});
+    authorModel.create(newAuthor);
+    // database.authors.push(newAuthor);
+    return res.json({massage:"Author was Added !!"});
 });
 
 
@@ -276,8 +285,9 @@ Method             GET
 */
 bookLekh.post("/publication/new", (req,res)=>{
     const {newPublication} = req.body;
-    database.publications.push(newPublication);
-    return res.json({Publication: database.publications, massage:"Publication was Added !!"});
+    publicationModel.create(newPublication);
+    // database.publications.push(newPublication);
+    return res.json({ massage:"Publication was Added !!"});
 })
 
 

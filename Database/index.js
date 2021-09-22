@@ -17,7 +17,7 @@ const books = [
         language: "english",
         pubDate: "2021-09-09",
         NoOfPage: 225,
-        category: ["friction", "programming", "tech",],
+        category: ["friction", "programming", "tech"],
         publication:2 
     },
     { 
@@ -27,7 +27,7 @@ const books = [
         language: "english",
         pubDate: "2021-09-09",
         NoOfPage: 225,
-        category: ["friction", "programming", "tech",],
+        category: ["friction", "programming", "tech"],
         publication:3 
     },
 ];
@@ -55,4 +55,4 @@ const publications = [
 
 
 // export data to another file
-module.exports = {books, authors, publications};
+module.exports = { books, authors, publications};
