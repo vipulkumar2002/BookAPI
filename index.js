@@ -7,6 +7,11 @@ const mongooes = require("mongoose");
 //Database
 const database = require("./Database/index");
 
+// include models
+const bookModel = require("./Database/book");
+const authorModel = require("./Database/author");
+const publicationModel = require("./Database/publication");
+
 //initializing
 const bookLekh = express();
 
@@ -23,7 +28,7 @@ mongooes.connect(process.env.MONGO_URL,
 
 /*_________________________________________BOOK_______________________________________*/
 
-/* 
+/*  
 Route              /
 Description        get all books
 Access             Public
