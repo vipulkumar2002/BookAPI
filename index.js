@@ -123,27 +123,7 @@ Access             Public
 Parameters         isbn
 Method             PUT
 */
-bookLekh.put("/book/update/:isbn", (req,res)=>{
-    database.books.forEach((book)=>{
-        if(book.ISBN === req.params.isbn){
-            book.title = req.body.bookTitle;
-            return ;
-        }
-    });
-
-    return res.json({books: database.books});
-});
-
-
-/* 
-Route              /book/update
-Description        update/add new author for a book
-Access             Public
-Parameters         isbn
-Method             PUT
-*/
 bookLekh.put("/book/update/:isbn", async(req,res)=>{
-    //update the book database
     const updatedBook = await bookModel.findOneAndUpdate(
         {
             ISBN: req.params.isbn,
@@ -152,24 +132,108 @@ bookLekh.put("/book/update/:isbn", async(req,res)=>{
             title: req.body.bookTitle,
         },
         {
-            new:true,
+            new: true,
         } 
+    );
+
+    /*  database.books.forEach((book)=>{
+        if(book.ISBN === req.params.isbn){
+            book.title = req.body.bookTitle;
+            return ;
+        }
+    });   */
+
+    return res.json({books: updatedBook});
+});
+
+
+/* 
+Route              /book/update/author
+Description        update/add new author for a book
+Access             Public
+Parameters         isbn
+Method             PUT
+*/
+bookLekh.put("/book/update/author/:isbn", async(req,res)=>{
+    //update the book database
+    const updatedBook = await bookModel.findByIdAndUpdate(
+        {
+            ISBN: req.params.isbn
+        },
+        {
+            $pull: {
+                authors : req.body.newAuthor
+            }
+        },
+        {
+            new: true
+        }
     );
     /* database.books.forEach((book)=>{
         if(book.ISBN === req.params.isbn)
         return book.authors.push(req.body.newAuthor);
-    });   */
+    });   */  
 
     //update the author database
-    /*database.authors.forEach((author)=>{
+    const updatedAuthor = await authorModel.findByIdAndUpdate(
+        {
+            id: req.body.newAuthor
+        },
+        {
+            $push : {
+                books: req.params.isbn
+            }
+        },
+        {
+            new: true
+        }
+    )
+    /*   database.authors.forEach((author)=>{
         if(author.id === req.body.newAuthor)
         return author.books.push(req.params.isbn);
-    });   */
+    });  */
 
-    return res.json({books: updatedBook, massage: "New author was addaed!!!"});  
+    return res.json({books: updatedBook, authors:updatedAuthor, massage: "New author was added"});  
 });
 
 
+/* 
+Route              /book/update/author
+Description        update/add new author for a book
+Access             Public
+Parameters         isbn
+Method             PUT
+*/
+bookLekh.delete("/book/delete/:isbn", (req, res) => {
+
+    const updatedBookDatabase = database.books.filter(
+      (book) => book.ISBN !== req.params.isbn
+    );
+
+    database.books = updatedBookDatabase;
+    return res.json({books: database.books});
+});
+
+
+/*
+Route           /book/delete/author
+Description     delete a author from a book
+Access          PUBLIC
+Parameters      isbn, author id
+Method          DELETE
+*/
+bookLekh.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
+    // update the book database
+    database.books.forEach((book) => {
+      if (book.ISBN === req.params.isbn) {
+        const newAuthorList = book.authors.filter(
+          (author) => author !== parseInt(req.params.authorId)
+        );
+        book.authors = newAuthorList;
+        return;
+      }
+    });
+});
 /*_________________________________________________AUTHOR__________________________________________________*/
 
 
@@ -299,7 +363,6 @@ bookLekh.post("/publication/new", (req,res)=>{
     publicationModel.create(newPublication);
     // database.publications.push(newPublication);
     return res.json({ massage:"Publication was Added !!"});
-})
+});
 
-
-bookLekh.listen(3000, () => console.log("Server running!!"));
+bookLekh.listen(3000, () => console.log("Server running!!") );
