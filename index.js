@@ -136,26 +136,37 @@ bookLekh.put("/book/update/:isbn", (req,res)=>{
 
 
 /* 
-Route              /book/update/author
+Route              /book/update
 Description        update/add new author for a book
 Access             Public
 Parameters         isbn
 Method             PUT
 */
-bookLekh.put("/book/update/author/:isbn", (req,res)=>{
+bookLekh.put("/book/update/:isbn", async(req,res)=>{
     //update the book database
-    database.books.forEach((book)=>{
+    const updatedBook = await bookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn,
+        },
+        {
+            title: req.body.bookTitle,
+        },
+        {
+            new:true,
+        } 
+    );
+    /* database.books.forEach((book)=>{
         if(book.ISBN === req.params.isbn)
         return book.authors.push(req.body.newAuthor);
-    });
+    });   */
 
     //update the author database
-    database.authors.forEach((author)=>{
+    /*database.authors.forEach((author)=>{
         if(author.id === req.body.newAuthor)
         return author.books.push(req.params.isbn);
-    });
+    });   */
 
-    return res.json({books: database.books, authors: database.authors, massage: "New author was addaed!!!"});  
+    return res.json({books: updatedBook, massage: "New author was addaed!!!"});  
 });
 
 
