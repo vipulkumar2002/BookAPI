@@ -11,6 +11,7 @@ const database = require("./Database/index");
 const bookModel = require("./Database/book");
 const authorModel = require("./Database/author");
 const publicationModel = require("./Database/publication");
+const { findByIdAndDelete } = require("./Database/book");
 
 //initializing
 const bookLekh = express();
@@ -204,14 +205,15 @@ Access             Public
 Parameters         isbn
 Method             PUT
 */
-bookLekh.delete("/book/delete/:isbn", (req, res) => {
+bookLekh.delete("/book/delete/:isbn", async(req, res) => {
+    const updatedBookDatabase = await bookModel.findOneAndDelete({ISBN: req.params.isbn});
 
-    const updatedBookDatabase = database.books.filter(
+   /* const updatedBookDatabase = database.books.filter(
       (book) => book.ISBN !== req.params.isbn
-    );
+    ); 
 
-    database.books = updatedBookDatabase;
-    return res.json({books: database.books});
+    database.books = updatedBookDatabase;   */
+    return res.json({books: updatedBookDatabase});
 });
 
 
@@ -222,9 +224,23 @@ Access          PUBLIC
 Parameters      isbn, author id
 Method          DELETE
 */
-bookLekh.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
+bookLekh.delete("/book/delete/author/:isbn/:authorId", async(req, res) => {
     // update the book database
-    database.books.forEach((book) => {
+    const updatedbook = await bookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    },
+    {
+        $pull:{
+            authors: parseInt(req.params.authorId)
+        }
+    },
+    {
+        new: true
+    }
+);
+});
+
+    /*  database.books.forEach((book) => {
       if (book.ISBN === req.params.isbn) {
         const newAuthorList = book.authors.filter(
           (author) => author !== parseInt(req.params.authorId)
@@ -233,7 +249,8 @@ bookLekh.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
         return;
       }
     });
-});
+ */
+
 /*_________________________________________________AUTHOR__________________________________________________*/
 
 
